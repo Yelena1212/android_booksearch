@@ -3,10 +3,12 @@
 
 package com.codepath.android.booksearch.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -60,11 +62,18 @@ public class BookListActivity extends AppCompatActivity {
                 String query = etSearch.getText().toString().trim();
                 if (!query.isEmpty()) {
                     searchBooks(query);
+                    hideKeyboard(v); // Hide the keyboard after search
                 } else {
                     Toast.makeText(BookListActivity.this, "Please enter a search term.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+    private void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null) {
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void searchBooks(String query) {
