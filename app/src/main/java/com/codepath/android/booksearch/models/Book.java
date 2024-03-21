@@ -1,3 +1,5 @@
+//Yelena Baranchuk
+
 package com.codepath.android.booksearch.models;
 
 import android.os.Parcel;
