@@ -1,144 +1,98 @@
 package com.codepath.android.booksearch.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 
 import com.codepath.android.booksearch.R;
 import com.codepath.android.booksearch.adapters.BookAdapter;
 import com.codepath.android.booksearch.models.Book;
-import com.codepath.android.booksearch.net.BookClient;
+import com.codepath.android.booksearch.services.BookService; // Ensure this is the correct path
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.util.ArrayList;
 
 import okhttp3.Headers;
 
-
 public class BookListActivity extends AppCompatActivity {
     private RecyclerView rvBooks;
     private BookAdapter bookAdapter;
-    private BookClient client;
     private ArrayList<Book> abooks;
+    private BookService bookService; // Declare your BookService
+    private EditText etSearch;
+    private Button btnSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_list);
 
-        // Checkpoint #3
-        // Switch Activity to Use a Toolbar
-        // see http://guides.codepath.org/android/Using-the-App-ToolBar#using-toolbar-as-actionbar
-
         rvBooks = findViewById(R.id.rvBooks);
+        etSearch = findViewById(R.id.etSearch);
+        btnSearch = findViewById(R.id.btnSearch);
         abooks = new ArrayList<>();
-
-        // Initialize the adapter
         bookAdapter = new BookAdapter(this, abooks);
-        bookAdapter.setOnItemClickListener(new BookAdapter.OnItemClickListener() {
+        rvBooks.setAdapter(bookAdapter);
+        rvBooks.setLayoutManager(new LinearLayoutManager(this));
+        bookService = new BookService();
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Book Search App");
+
+        btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(View itemView, int position) {
-                Toast.makeText(
-                        BookListActivity.this,
-                        "An item at position " + position + " clicked!",
-                        Toast.LENGTH_SHORT).show();
-
-                // Handle item click here:
-                // Checkpoint #5
-                // Hook up Book Detail View
-                // see https://guides.codepath.org/android/Using-the-RecyclerView#attaching-click-handlers-using-listeners for setting up click listeners
-
-                // Create Intent to start BookDetailActivity
-                // Get Book at the given position
-                // Pass the book into details activity using extras
-                // see http://guides.codepath.org/android/Using-Intents-to-Create-Flows
+            public void onClick(View v) {
+                String query = etSearch.getText().toString().trim();
+                if (!query.isEmpty()) {
+                    searchBooks(query);
+                } else {
+                    Toast.makeText(BookListActivity.this, "Please enter a search term.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
-
-        // Attach the adapter to the RecyclerView
-        rvBooks.setAdapter(bookAdapter);
-
-        // Set layout manager to position the items
-        rvBooks.setLayoutManager(new LinearLayoutManager(this));
-
-        // Fetch the data remotely
-        fetchBooks("Oscar Wilde");
     }
 
-    // Executes an API call to the OpenLibrary search endpoint, parses the results
-    // Converts them into an array of book objects and adds them to the adapter
-    private void fetchBooks(String query) {
-        client = new BookClient();
-        client.getBooks(query, new JsonHttpResponseHandler() {
-
+    private void searchBooks(String query) {
+        bookService.searchBooks(query, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Headers headers, JSON response) {
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
                 try {
-                    JSONArray docs;
-                    if (response != null) {
-                        // Get the docs json array
-                        docs = response.jsonObject.getJSONArray("docs");
-                        // Parse json array into array of model objects
-                        final ArrayList<Book> books = Book.fromJson(docs);
-                        // Remove all books from the adapter
-                        abooks.clear();
-                        // Load model objects into the adapter
-                        for (Book book : books) {
-                            abooks.add(book); // add book through the adapter
-                        }
-                        bookAdapter.notifyDataSetChanged();
-                    }
-                } catch (JSONException e) {
-                    // Invalid JSON format, show appropriate error.
-                    e.printStackTrace();
+                    JSONArray docs = json.jsonObject.getJSONArray("docs");
+                    ArrayList<Book> books = Book.fromJson(docs);
+                    abooks.clear();
+                    abooks.addAll(books);
+                    bookAdapter.notifyDataSetChanged();
+                } catch (Exception e) {
+                    Log.e("BookListActivity", "Failed to parse books", e);
+                    Toast.makeText(BookListActivity.this, "Error fetching books", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Headers headers, String responseString, Throwable throwable) {
-                // Handle failed request here
-                Log.e(BookListActivity.class.getSimpleName(),
-                        "Request failed with code " + statusCode + ". Response message: " + responseString);
+                Log.e("BookListActivity", "Book search failed", throwable);
+                Toast.makeText(BookListActivity.this, "Failed to fetch books", Toast.LENGTH_SHORT).show();
             }
         });
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_book_list, menu);
-        // Checkpoint #4
-        // Add SearchView to Toolbar
-        // Refer to http://guides.codepath.org/android/Extended-ActionBar-Guide#adding-searchview-to-actionbar guide for more details
+        bookAdapter.setOnItemClickListener((itemView, position) -> {
+            Book selectedBook = abooks.get(position);
+            Intent intent = new Intent(BookListActivity.this, BookDetailActivity.class);
+            intent.putExtra("book", selectedBook);
+            startActivity(intent);
+        });
 
-
-        // Checkpoint #7 Show Progress Bar
-        // see https://guides.codepath.org/android/Handling-ProgressBars#progress-within-actionbar
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }

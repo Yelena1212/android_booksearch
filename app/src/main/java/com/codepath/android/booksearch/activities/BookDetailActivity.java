@@ -6,8 +6,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 
+import com.bumptech.glide.Glide;
 import com.codepath.android.booksearch.R;
+import com.codepath.android.booksearch.models.Book;
 
 public class BookDetailActivity extends AppCompatActivity {
     private ImageView ivBookCover;
@@ -20,19 +23,25 @@ public class BookDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_book_detail);
 
         // Fetch views
-        ivBookCover = (ImageView) findViewById(R.id.ivBookCover);
-        tvTitle = (TextView) findViewById(R.id.tvTitle);
-        tvAuthor = (TextView) findViewById(R.id.tvAuthor);
+        ivBookCover = findViewById(R.id.ivBookCover);
+        tvTitle = findViewById(R.id.tvTitle);
+        tvAuthor = findViewById(R.id.tvAuthor);
 
         // Extract book object from intent extras
+        Book book = getIntent().getParcelableExtra("book");
+        if (book != null) {
+            tvTitle.setText(book.getTitle());
+            tvAuthor.setText(book.getAuthor());
+            // Use Glide to load the cover image
+            Glide.with(this).load(book.getCoverUrl()).into(ivBookCover);
+        }
 
-        // Checkpoint #5
-        // Reuse the Toolbar previously used in the detailed activity by referring to this guide
-        // Follow using a Toolbar guide to set the Toolbar as the ActionBar.
-        // Change activity title to reflect the book title by referring to the Configuring The ActionBar guide.
-        // (Bonus) Get additional book information like publisher and publish_year from the Books API and display in details view.
+        Toolbar toolbar = findViewById(R.id.toolbar); // Make sure you have a Toolbar with the id 'toolbar'
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -47,16 +56,16 @@ public class BookDetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                // This ID represents the Home or Up button; in the case of this
+                // activity, the Up button is shown. For
+                // more details, see the Navigation pattern on Android Design:
+                // http://developer.android.com/design/patterns/navigation.html#up-vs-back
+                onBackPressed();
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

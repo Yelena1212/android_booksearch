@@ -5,26 +5,41 @@
     android:orientation="vertical"
     tools:context=".activities.BookDetailActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorAccent"
+        android:elevation="0dp"
+        android:title="@string/app_name"
+        android:titleTextColor="@color/colorPrimaryDark">
+
+    </androidx.appcompat.widget.Toolbar>
+
+
     <ImageView
         android:id="@+id/ivBookCover"
-        android:layout_marginTop="8dp"
         android:layout_width="280dp"
-        android:layout_height="280dp" />
+        android:layout_height="280dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="50dp"/>
 
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="32sp"
+        android:layout_width="281dp"
+        android:layout_height="75dp"
         android:layout_marginTop="8dp"
         android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
+        android:paddingRight="10dp"
+        android:layout_marginStart="50dp"
+        android:textSize="32sp" />
 
     <TextView
         android:id="@+id/tvAuthor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="281dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="8dp"
         android:textSize="22sp"
-        android:layout_marginTop="8dp" />
+        android:layout_marginStart="50dp"/>
 
 </LinearLayout>

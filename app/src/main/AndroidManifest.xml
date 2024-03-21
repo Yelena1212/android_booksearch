@@ -9,19 +9,28 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
         <activity
             android:name=".activities.BookListActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".activities.BookDetailActivity"
-            android:label="@string/title_activity_book_detail" >
+            android:theme="@style/AppTheme"
+            android:label="@string/title_activity_book_detail"
+            android:parentActivityName=".activities.BookListActivity" >
+            <!-- The meta-data tag is necessary for some API levels to support the parent activity -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.codepath.android.booksearch.activities.BookListActivity" />
         </activity>
+
     </application>
 
 </manifest>
+
