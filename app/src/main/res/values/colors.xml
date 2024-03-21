@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#24527a</color>
+
+    <color name="ToolbarColor">#24527a</color>
+    <color name="AppBackgroundColor">#e0ebeb</color>
+    <color name="search_button_color">#5dacbd</color>
+    <color name="ButtonTextColor">#121212</color> <!-- Dark background for app -->
+</resources>
